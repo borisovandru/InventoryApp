@@ -54,6 +54,9 @@ class ItemListFragment : Fragment() {
 
         //создаем адаптер
         val adapter = ItemListAdapter {
+//            Добавить обработчик кликов
+            val action = ItemListFragmentDirections.actionItemListFragmentToItemDetailFragment(it.id)
+            this.findNavController().navigate(action)
         }
         //привязываем созданный адаптер к recyclerView в xml
         binding.recyclerView.adapter = adapter
