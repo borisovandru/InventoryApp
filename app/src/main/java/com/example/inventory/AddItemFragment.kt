@@ -33,16 +33,15 @@ import com.example.inventory.databinding.FragmentAddItemBinding
  */
 class AddItemFragment : Fragment() {
 
-    private val navigationArgs: ItemDetailFragmentArgs by navArgs()
-    lateinit var item: Item
-
-    // Use the 'by activityViewModels()' Kotlin property delegate from the fragment-ktx artifact
-    // to share the ViewModel across fragments.
+    //В основном это шаблонный код, поэтому вы можете повторно использовать код в будущем для создания экземпляра ViewModel с использованием фабрики ViewModel
     private val viewModel: InventoryViewModel by activityViewModels {
         InventoryViewModelFactory(
-            (activity?.application as InventoryApplication).database.itemDao()
+            (activity?.application as InventoryApplication).database
+                .itemDao()
         )
     }
+    lateinit var item: Item
+    private val navigationArgs: ItemDetailFragmentArgs by navArgs()
 
     // Binding object instance corresponding to the fragment_add_item.xml layout
     // This property is non-null between the onCreateView() and onDestroyView() lifecycle callbacks,
@@ -60,19 +59,32 @@ class AddItemFragment : Fragment() {
     }
 
     /**
-     * Returns true if the EditTexts are not empty
+     * Called before fragment is destroyed.
      */
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // Hide keyboard.
+        val inputMethodManager = requireActivity().getSystemService(INPUT_METHOD_SERVICE) as
+                InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(requireActivity().currentFocus?.windowToken, 0)
+        _binding = null
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.saveAction.setOnClickListener {
+            addNewItem()
+        }
+    }
+
     private fun isEntryValid(): Boolean {
         return viewModel.isEntryValid(
             binding.itemName.text.toString(),
             binding.itemPrice.text.toString(),
-            binding.itemCount.text.toString(),
+            binding.itemCount.text.toString()
         )
     }
 
-    /**
-     * Inserts the new Item into database and navigates up to list fragment.
-     */
     private fun addNewItem() {
         if (isEntryValid()) {
             viewModel.addNewItem(
@@ -83,30 +95,5 @@ class AddItemFragment : Fragment() {
             val action = AddItemFragmentDirections.actionAddItemFragmentToItemListFragment()
             findNavController().navigate(action)
         }
-    }
-
-    /**
-     * Called when the view is created.
-     * The itemId Navigation argument determines the edit item  or add new item.
-     * If the itemId is positive, this method retrieves the information from the database and
-     * allows the user to update it.
-     */
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        binding.saveAction.setOnClickListener {
-            addNewItem()
-        }
-    }
-
-    /**
-     * Called before fragment is destroyed.
-     */
-    override fun onDestroyView() {
-        super.onDestroyView()
-        // Hide keyboard.
-        val inputMethodManager = requireActivity().getSystemService(INPUT_METHOD_SERVICE) as
-            InputMethodManager
-        inputMethodManager.hideSoftInputFromWindow(requireActivity().currentFocus?.windowToken, 0)
-        _binding = null
     }
 }
