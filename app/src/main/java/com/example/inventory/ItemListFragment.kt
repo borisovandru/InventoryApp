@@ -54,7 +54,7 @@ class ItemListFragment : Fragment() {
 
         //создаем адаптер
         val adapter = ItemListAdapter {
-//            Добавить обработчик кликов
+//            Добавить обработчик кликов //передача id item'a //должен быть <argument в nav_graph
             val action = ItemListFragmentDirections.actionItemListFragmentToItemDetailFragment(it.id)
             this.findNavController().navigate(action)
         }
