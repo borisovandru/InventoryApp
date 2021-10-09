@@ -18,5 +18,8 @@ interface ItemDao {
     @Query("SELECT * from item ORDER BY name ASC")
     fun getItems(): Flow<List<Item>> //рекомендуется использовать тип Flow вместо LiveData. Из-за типа возврата Flow Room выполняет запрос в фоновом потоке. Так же Room обновляет Flow сам без вашей помощи
 
+    @Query("SELECT * from item WHERE id = :id")
+    fun getItem(id: Int): Flow<Item>
+
 
 }
